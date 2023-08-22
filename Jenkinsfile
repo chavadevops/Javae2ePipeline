@@ -42,13 +42,16 @@ pipeline{
                     withSonarQubeEnv(credentialsId: 'jenkins_sonar') {
                         sh "mvn sonar:sonar"
                     }
+                    timeout(time: 1, unit: 'HOURS'){
+                        def qg = waitForQualityGate()
+                        if(qg.status != 'OK) {
+                           error "Pipeline aborted due to qualitygate failure: ${qg.status}"
+                        }
                 }
             }
 
         }
-
   
-
-  
-}
-}
+      }
+   }
+  }
