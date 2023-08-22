@@ -36,22 +36,24 @@ pipeline{
 
         }
         
-        stage("Sonarqube Analysis") {
+             stage("Sonarqube Analysis") {
             steps {
                 script {
-                    withSonarQubeEnv(credentialsId: 'jenkins_sonar') {
+                    withSonarQubeEnv(credentialsId: 'jenkins-sonar') {
                         sh "mvn sonar:sonar"
                     }
-                    timeout(time: 1, unit: 'HOURS'){
-                        def qg = waitForQualityGate()
-                        if(qg.status != 'OK') {
-                           error "Pipeline aborted due to qualitygate failure: ${qg.status}"
-                        }
                 }
             }
 
         }
-  
-      }
+
+        stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'jenkins-sonar'
+                }
+            }
+
+        }
    }
   }
